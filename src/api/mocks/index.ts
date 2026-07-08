@@ -104,7 +104,19 @@ const handlers: Record<string, MockHandler> = {
   'POST /privacy/consents/:id/revoke': async () => ({ success: true }),
   'GET /privacy/export': async () => ({
     exportedAt: new Date().toISOString(),
-    data: { user: mockUser, dashboard: mockDashboard },
+    user: mockUser,
+    consents: mockConsents,
+    connections: mockConnections.map((c) => ({
+      id: c.id,
+      institution: c.institution.name,
+      status: c.status,
+      createdAt: c.createdAt,
+      lastSyncAt: c.lastSyncAt,
+    })),
+    accounts: mockAccounts,
+    transactions: [],
+    cards: mockCards,
+    investments: mockInvestments,
   }),
   'DELETE /privacy/account': async () => ({ success: true }),
 };

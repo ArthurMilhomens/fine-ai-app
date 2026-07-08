@@ -31,7 +31,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     'expo-router',
     'expo-secure-store',
-    'expo-sharing',
     [
       'expo-splash-screen',
       {
@@ -50,7 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     useMocks: process.env.EXPO_PUBLIC_USE_MOCKS === 'true',
     pluggyIncludeSandbox: process.env.EXPO_PUBLIC_PLUGGY_INCLUDE_SANDBOX === 'true',
     eas: {
-      projectId: process.env.EAS_PROJECT_ID,
+      projectId: process.env.EAS_PROJECT_ID ?? '21babca6-19e3-424a-ba20-448192036545',
     },
   },
 });

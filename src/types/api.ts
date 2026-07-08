@@ -145,5 +145,17 @@ export interface Consent {
 
 export interface PrivacyExport {
   exportedAt: string;
-  data: Record<string, unknown>;
+  user: { id: string; email: string; createdAt: string };
+  consents: Consent[];
+  connections: Array<{
+    id: string;
+    institution: string;
+    status: ConnectionStatus;
+    createdAt: string;
+    lastSyncAt?: string | null;
+  }>;
+  accounts: unknown[];
+  transactions: unknown[];
+  cards: unknown[];
+  investments: unknown[];
 }

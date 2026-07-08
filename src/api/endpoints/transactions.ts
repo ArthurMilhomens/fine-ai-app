@@ -1,5 +1,6 @@
+import { mapTransactionsResponse } from '../adapters';
 import { apiRequest } from '../client';
-import type { TransactionsResponse, TransactionDirection } from '@/types/api';
+import type { Transaction, TransactionsResponse, TransactionDirection } from '@/types/api';
 
 export interface TransactionFilters {
   accountId?: string;
@@ -15,17 +16,23 @@ export interface TransactionFilters {
 }
 
 export const transactionsApi = {
-  list: (filters: TransactionFilters = {}) =>
-    apiRequest<TransactionsResponse>('GET', '/transactions', undefined, {
-      accountId: filters.accountId,
-      from: filters.from,
-      to: filters.to,
-      category: filters.category,
-      direction: filters.direction,
-      minAmount: filters.minAmount?.toString(),
-      maxAmount: filters.maxAmount?.toString(),
-      cursor: filters.cursor,
-      limit: filters.limit?.toString() ?? '20',
-      sort: filters.sort ?? 'date:desc',
-    }),
+  list: async (filters: TransactionFilters = {}) =>
+    mapTransactionsResponse(
+      await apiRequest<{
+        data: Transaction[];
+        nextCursor?: string | null;
+        hasMore: boolean;
+      }>('GET', '/transactions', undefined, {
+        accountId: filters.accountId,
+        from: filters.from,
+        to: filters.to,
+        category: filters.category,
+        direction: filters.direction,
+        minAmount: filters.minAmount?.toString(),
+        maxAmount: filters.maxAmount?.toString(),
+        cursor: filters.cursor,
+        limit: filters.limit?.toString() ?? '20',
+        sort: filters.sort ?? 'date:desc',
+      }),
+    ),
 };

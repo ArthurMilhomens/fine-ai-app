@@ -15,6 +15,7 @@ export const authApi = {
       { refreshToken },
     ),
 
-  logout: (refreshToken: string) =>
-    apiRequest<{ success: boolean }>('POST', '/auth/logout', { refreshToken }),
+  logout: async (refreshToken: string) => {
+    await apiRequest<void>('POST', '/auth/logout', { refreshToken });
+  },
 };
