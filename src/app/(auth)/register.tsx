@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -6,10 +7,11 @@ import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'rea
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
-import { ThemedText } from '@/components/ui/ThemedText';
+import { Card } from '@/components/ui/Card';
+import { ThemedText, errorText } from '@/components/ui/ThemedText';
 import { useAuth } from '@/auth/useAuth';
 import { useAppTheme } from '@/theme/ThemeProvider';
-import { spacing } from '@/theme/tokens';
+import { gradient, radius, spacing } from '@/theme/tokens';
 
 const schema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -41,50 +43,60 @@ export default function RegisterScreen() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <LinearGradient
+        colors={theme.dark ? [gradient.cardStart, 'transparent'] : ['#FFE8D6', 'transparent']}
+        style={styles.glow}
+      />
       <View style={styles.content}>
-        <ThemedText variant="title">Criar conta</ThemedText>
-        <ThemedText muted style={styles.subtitle}>Cadastre-se para começar</ThemedText>
+        <View style={styles.brand}>
+          <ThemedText variant="title">Criar conta</ThemedText>
+          <ThemedText muted style={styles.subtitle}>Comece a organizar suas finanças</ThemedText>
+        </View>
 
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
-            <View style={styles.field}>
-              <TextInput
-                placeholder="E-mail"
-                placeholderTextColor={theme.colors.textMuted}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={value}
-                onChangeText={onChange}
-                style={[styles.input, { backgroundColor: theme.colors.inputBg, color: theme.colors.text }]}
-              />
-              {fieldError ? <ThemedText variant="caption" style={styles.error}>{fieldError.message}</ThemedText> : null}
-            </View>
-          )}
-        />
+        <Card style={styles.form}>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+              <View style={styles.field}>
+                <ThemedText variant="caption" muted>E-mail</ThemedText>
+                <TextInput
+                  placeholder="seu@email.com"
+                  placeholderTextColor={theme.colors.textMuted}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  value={value}
+                  onChangeText={onChange}
+                  style={[styles.input, { backgroundColor: theme.colors.inputBg, color: theme.colors.text }]}
+                />
+                {fieldError ? <ThemedText variant="caption" style={errorText.text}>{fieldError.message}</ThemedText> : null}
+              </View>
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
-            <View style={styles.field}>
-              <TextInput
-                placeholder="Senha (mín. 8 caracteres)"
-                placeholderTextColor={theme.colors.textMuted}
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                style={[styles.input, { backgroundColor: theme.colors.inputBg, color: theme.colors.text }]}
-              />
-              {fieldError ? <ThemedText variant="caption" style={styles.error}>{fieldError.message}</ThemedText> : null}
-            </View>
-          )}
-        />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+              <View style={styles.field}>
+                <ThemedText variant="caption" muted>Senha</ThemedText>
+                <TextInput
+                  placeholder="Mínimo 8 caracteres"
+                  placeholderTextColor={theme.colors.textMuted}
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                  style={[styles.input, { backgroundColor: theme.colors.inputBg, color: theme.colors.text }]}
+                />
+                {fieldError ? <ThemedText variant="caption" style={errorText.text}>{fieldError.message}</ThemedText> : null}
+              </View>
+            )}
+          />
 
-        {error ? <ThemedText variant="caption" style={styles.error}>{error}</ThemedText> : null}
+          {error ? <ThemedText variant="caption" style={errorText.text}>{error}</ThemedText> : null}
 
-        <Button label="Cadastrar" onPress={handleSubmit(onSubmit)} loading={loading} />
+          <Button label="Cadastrar" onPress={handleSubmit(onSubmit)} loading={loading} />
+        </Card>
 
         <Link href="/(auth)/login" asChild>
           <ThemedText muted style={styles.link}>Já tenho conta</ThemedText>
@@ -96,10 +108,12 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center' },
-  content: { padding: spacing.xl, gap: spacing.md },
-  subtitle: { marginBottom: spacing.lg },
-  field: { gap: 4 },
-  input: { borderRadius: 16, padding: spacing.md, fontSize: 16 },
-  error: { color: '#FF3B30' },
-  link: { textAlign: 'center', marginTop: spacing.md },
+  glow: { ...StyleSheet.absoluteFill, opacity: 0.35 },
+  content: { padding: spacing.xl, gap: spacing.lg },
+  brand: { alignItems: 'center', marginBottom: spacing.md },
+  subtitle: { marginTop: spacing.xs, textAlign: 'center' },
+  form: { gap: spacing.md },
+  field: { gap: spacing.xs },
+  input: { borderRadius: radius.md, padding: spacing.md, fontSize: 16 },
+  link: { textAlign: 'center' },
 });

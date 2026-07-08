@@ -3,8 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 
 import { ThemedText } from '@/components/ui/ThemedText';
-import { categoryColors } from '@/theme/tokens';
-import { spacing } from '@/theme/tokens';
+import { categoryColors, spacing } from '@/theme/tokens';
 
 interface BarData {
   label: string;
@@ -19,9 +18,10 @@ interface IncomeOutcomeChartProps {
 
 export function IncomeOutcomeChart({ data, maxValue }: IncomeOutcomeChartProps) {
   const max = maxValue ?? Math.max(...data.flatMap((d) => [d.income, d.outcome]), 1);
-  const chartHeight = 120;
-  const barWidth = 24;
-  const gap = 16;
+  const chartHeight = 128;
+  const barWidth = 28;
+  const gap = 18;
+  const chartWidth = (barWidth + gap) * data.length;
 
   return (
     <View>
@@ -34,8 +34,9 @@ export function IncomeOutcomeChart({ data, maxValue }: IncomeOutcomeChartProps) 
           <View style={[styles.dot, { backgroundColor: categoryColors.outcome }]} />
           <ThemedText variant="caption" muted>Despesas</ThemedText>
         </View>
+        <ThemedText variant="caption" muted style={styles.filter}>Este mês</ThemedText>
       </View>
-      <Svg width={(barWidth + gap) * data.length} height={chartHeight + 24}>
+      <Svg width={chartWidth} height={chartHeight + 24}>
         {data.map((item, index) => {
           const x = index * (barWidth + gap);
           const incomeH = (item.income / max) * chartHeight;
@@ -47,23 +48,23 @@ export function IncomeOutcomeChart({ data, maxValue }: IncomeOutcomeChartProps) 
                 y={chartHeight - outcomeH}
                 width={barWidth / 2 - 2}
                 height={outcomeH}
-                rx={4}
+                rx={5}
                 fill={categoryColors.outcome}
-                opacity={0.5}
+                opacity={0.45}
               />
               <Rect
                 x={x + barWidth / 2}
                 y={chartHeight - incomeH}
                 width={barWidth / 2 - 2}
                 height={incomeH}
-                rx={4}
+                rx={5}
                 fill={categoryColors.income}
               />
             </React.Fragment>
           );
         })}
       </Svg>
-      <View style={styles.labels}>
+      <View style={[styles.labels, { width: chartWidth }]}>
         {data.map((item) => (
           <ThemedText key={item.label} variant="caption" muted style={styles.label}>
             {item.label}
@@ -75,9 +76,15 @@ export function IncomeOutcomeChart({ data, maxValue }: IncomeOutcomeChartProps) 
 }
 
 const styles = StyleSheet.create({
-  legend: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
+  legend: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot: { width: 8, height: 8, borderRadius: 4 },
+  filter: { marginLeft: 'auto' },
   labels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.sm },
-  label: { fontSize: 11 },
+  label: { fontSize: 11, width: 28, textAlign: 'center' },
 });

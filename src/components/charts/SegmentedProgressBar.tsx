@@ -1,6 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
+import { ThemedText } from '@/components/ui/ThemedText';
 import { categoryColors } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
 interface Segment {
   label: string;
@@ -11,21 +13,34 @@ interface Segment {
 interface SegmentedProgressBarProps {
   segments: Segment[];
   total: number;
+  showLegend?: boolean;
 }
 
-export function SegmentedProgressBar({ segments, total }: SegmentedProgressBarProps) {
+export function SegmentedProgressBar({ segments, total, showLegend = true }: SegmentedProgressBarProps) {
   return (
-    <View style={styles.container}>
-      {segments.map((segment) => {
-        const widthPercent = total > 0 ? (segment.value / total) * 100 : 0;
-        if (widthPercent <= 0) return null;
-        return (
-          <View
-            key={segment.label}
-            style={[styles.segment, { width: `${widthPercent}%`, backgroundColor: segment.color }]}
-          />
-        );
-      })}
+    <View>
+      <View style={styles.container}>
+        {segments.map((segment) => {
+          const widthPercent = total > 0 ? (segment.value / total) * 100 : 0;
+          if (widthPercent <= 0) return null;
+          return (
+            <View
+              key={segment.label}
+              style={[styles.segment, { width: `${widthPercent}%`, backgroundColor: segment.color }]}
+            />
+          );
+        })}
+      </View>
+      {showLegend ? (
+        <View style={styles.legend}>
+          {segments.map((segment) => (
+            <View key={segment.label} style={styles.legendItem}>
+              <View style={[styles.dot, { backgroundColor: segment.color }]} />
+              <ThemedText variant="caption" muted>{segment.label}</ThemedText>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -39,10 +54,18 @@ export const defaultSpendingSegments = (expenses: number) => [
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: 8,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
-    gap: 2,
+    gap: 3,
   },
-  segment: { height: '100%', borderRadius: 4 },
+  segment: { height: '100%', borderRadius: 5 },
+  legend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
 });

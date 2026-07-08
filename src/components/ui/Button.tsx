@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { useAppTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
+import { accent, radius, shadows, spacing } from '@/theme/tokens';
 
 interface ButtonProps {
   label: string;
@@ -9,16 +9,24 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   disabled?: boolean;
   loading?: boolean;
+  fullWidth?: boolean;
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled, loading }: ButtonProps) {
+export function Button({
+  label,
+  onPress,
+  variant = 'primary',
+  disabled,
+  loading,
+  fullWidth = true,
+}: ButtonProps) {
   const { theme } = useAppTheme();
 
   const bg =
     variant === 'primary'
-      ? '#007AFF'
+      ? accent.primary
       : variant === 'danger'
-        ? '#FF3B30'
+        ? accent.error
         : variant === 'secondary'
           ? theme.colors.surfaceElevated
           : 'transparent';
@@ -29,11 +37,13 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading 
       disabled={disabled || loading}
       style={({ pressed }) => [
         styles.button,
+        fullWidth && styles.fullWidth,
+        variant === 'primary' && shadows.soft,
         {
           backgroundColor: bg,
-          opacity: disabled || loading ? 0.5 : pressed ? 0.85 : 1,
+          opacity: disabled || loading ? 0.5 : pressed ? 0.88 : 1,
           borderColor: variant === 'ghost' ? theme.colors.border : 'transparent',
-          borderWidth: variant === 'ghost' ? 1 : 0,
+          borderWidth: variant === 'ghost' ? StyleSheet.hairlineWidth : 0,
         },
       ]}>
       <Text
@@ -67,10 +77,11 @@ export function IconButton({
 const styles = StyleSheet.create({
   button: {
     borderRadius: radius.md,
-    paddingVertical: spacing.md,
+    paddingVertical: 15,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',
   },
+  fullWidth: { width: '100%' },
   label: { fontSize: 16, fontWeight: '600' },
   iconButton: {
     width: 44,

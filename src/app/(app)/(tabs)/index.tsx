@@ -6,23 +6,26 @@ import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { queryKeys } from '@/api/queryClient';
 import { IncomeOutcomeChart } from '@/components/charts/IncomeOutcomeChart';
 import { defaultSpendingSegments, SegmentedProgressBar } from '@/components/charts/SegmentedProgressBar';
-import { BalanceCard } from '@/components/ui/BalanceCard';
+import { AppHeader } from '@/components/ui/AppHeader';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ScreenLayout } from '@/components/ui/ScreenLayout';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ThemedText } from '@/components/ui/ThemedText';
+import { WalletHero } from '@/components/ui/WalletHero';
 import { useConnections } from '@/features/connections/useConnections';
 import { useDashboard } from '@/features/dashboard/useDashboard';
 import { formatCurrency, formatRelativeTime } from '@/utils/format';
-import { spacing } from '@/theme/tokens';
+import { accent, spacing } from '@/theme/tokens';
 
 const QUICK_LINKS = [
-  { label: 'Contas', href: '/(app)/accounts' },
-  { label: 'Cartões', href: '/(app)/cards' },
-  { label: 'Investimentos', href: '/(app)/investments' },
-  { label: 'Conexões', href: '/(app)/(tabs)/connections' },
+  { label: 'Contas', href: '/(app)/accounts', icon: 'accounts' as const },
+  { label: 'Cartões', href: '/(app)/cards', icon: 'cards' as const },
+  { label: 'Investimentos', href: '/(app)/investments', icon: 'investments' as const },
+  { label: 'Conexões', href: '/(app)/(tabs)/connections', icon: 'connections' as const },
 ] as const;
 
 export default function DashboardScreen() {
@@ -37,17 +40,17 @@ export default function DashboardScreen() {
 
   if (isLoading) {
     return (
-      <ScreenLayout scroll={false}>
-        <Skeleton height={140} />
-        <Skeleton height={80} />
-        <Skeleton height={200} />
+      <ScreenLayout scroll={false} glow>
+        <Skeleton height={260} />
+        <Skeleton height={100} />
+        <Skeleton height={180} />
       </ScreenLayout>
     );
   }
 
   if (isError) {
     return (
-      <ScreenLayout scroll={false}>
+      <ScreenLayout scroll={false} glow>
         <ErrorState onRetry={() => refetch()} />
       </ScreenLayout>
     );
@@ -56,6 +59,7 @@ export default function DashboardScreen() {
   if (hasNoConnections) {
     return (
       <ScreenLayout
+        glow
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />}>
         <EmptyState
           title="Conecte seu primeiro banco"
@@ -75,6 +79,7 @@ export default function DashboardScreen() {
 
   return (
     <ScreenLayout
+      glow
       refreshControl={
         <RefreshControl
           refreshing={isRefetching}
@@ -84,22 +89,20 @@ export default function DashboardScreen() {
           }}
         />
       }>
-      <View style={styles.header}>
-        <ThemedText variant="title">Olá 👋</ThemedText>
-        <ThemedText variant="caption" muted>
-          Atualizado {formatRelativeTime(data!.computedAt)}
-        </ThemedText>
-      </View>
+      <AppHeader subtitle={`Atualizado ${formatRelativeTime(data!.computedAt)}`} />
 
       {hasExpired ? (
         <Pressable onPress={() => router.push('/(app)/(tabs)/connections')}>
-          <Card style={styles.banner}>
-            <ThemedText style={styles.bannerText}>⚠️ Conexão expirada — toque para renovar</ThemedText>
+          <Card compact style={styles.banner}>
+            <View style={styles.bannerRow}>
+              <AppIcon name="warning" color={accent.warning} size={18} />
+              <ThemedText style={styles.bannerText}>Conexão expirada — toque para renovar</ThemedText>
+            </View>
           </Card>
         </Pressable>
       ) : null}
 
-      <BalanceCard
+      <WalletHero
         balance={data!.availableBalance}
         currency={data!.currency}
         hidden={balanceHidden}
@@ -107,21 +110,23 @@ export default function DashboardScreen() {
       />
 
       <View style={styles.statsRow}>
-        <Card style={styles.statCard}>
-          <ThemedText variant="caption" muted>Patrimônio</ThemedText>
+        <Card compact style={styles.statCard}>
+          <ThemedText variant="caption" muted>Patrimônio total</ThemedText>
           <ThemedText variant="subtitle">{formatCurrency(data!.totalNetWorth, data!.currency)}</ThemedText>
         </Card>
-        <Card style={styles.statCard}>
-          <ThemedText variant="caption" muted>Investido</ThemedText>
+        <Card compact style={styles.statCard}>
+          <ThemedText variant="caption" muted>Total investido</ThemedText>
           <ThemedText variant="subtitle">{formatCurrency(data!.totalInvested, data!.currency)}</ThemedText>
         </Card>
       </View>
 
       <Card style={styles.section}>
-        <ThemedText variant="label">Gastos do mês</ThemedText>
-        <ThemedText variant="title">{formatCurrency(data!.monthlyExpenses, data!.currency)}</ThemedText>
+        <SectionHeader title="Gastos do mês" />
+        <ThemedText variant="display" style={styles.expenseValue}>
+          {formatCurrency(data!.monthlyExpenses, data!.currency)}
+        </ThemedText>
         <ThemedText variant="caption" muted style={styles.goal}>
-          Receitas: {formatCurrency(data!.monthlyIncome, data!.currency)}
+          Meta mensal · Receitas {formatCurrency(data!.monthlyIncome, data!.currency)}
         </ThemedText>
         <SegmentedProgressBar
           segments={defaultSpendingSegments(data!.monthlyExpenses)}
@@ -130,15 +135,17 @@ export default function DashboardScreen() {
       </Card>
 
       <Card style={styles.section}>
-        <ThemedText variant="label">Receitas vs Despesas</ThemedText>
+        <SectionHeader title="Receitas vs Despesas" />
         <IncomeOutcomeChart data={chartData} />
       </Card>
 
+      <SectionHeader title="Acesso rápido" />
       <View style={styles.quickLinks}>
         {QUICK_LINKS.map((link) => (
           <Pressable key={link.label} onPress={() => router.push(link.href as never)}>
-            <Card style={styles.quickLink}>
-              <ThemedText variant="label">{link.label}</ThemedText>
+            <Card compact style={styles.quickLink}>
+              <AppIcon name={link.icon} size={24} />
+              <ThemedText variant="label" style={styles.quickLabel}>{link.label}</ThemedText>
             </Card>
           </Pressable>
         ))}
@@ -148,13 +155,15 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { marginBottom: spacing.lg, marginTop: spacing.sm },
-  banner: { marginBottom: spacing.md, backgroundColor: '#FF950022' },
-  bannerText: { color: '#FF9500' },
-  statsRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
+  banner: { marginBottom: spacing.md, backgroundColor: 'rgba(255,149,0,0.12)' },
+  bannerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  bannerText: { color: accent.warning, flex: 1 },
+  statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
   statCard: { flex: 1 },
-  section: { marginTop: spacing.md },
-  goal: { marginVertical: spacing.sm },
-  quickLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md, marginBottom: spacing.xl },
-  quickLink: { minWidth: '47%' },
+  section: { marginBottom: spacing.md },
+  expenseValue: { fontSize: 30, marginBottom: spacing.xs },
+  goal: { marginBottom: spacing.md },
+  quickLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.xl },
+  quickLink: { width: '47%', alignItems: 'flex-start', gap: spacing.sm },
+  quickLabel: { marginTop: spacing.xs },
 });

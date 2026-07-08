@@ -1,23 +1,22 @@
-import { StyleSheet, Text, type TextProps } from 'react-native';
+import { StyleSheet, Text, type TextProps, type TextStyle } from 'react-native';
 
 import { useAppTheme } from '@/theme/ThemeProvider';
+import { typography } from '@/theme/tokens';
 
 interface ThemedTextProps extends TextProps {
-  variant?: 'title' | 'subtitle' | 'body' | 'caption' | 'label';
+  variant?: 'display' | 'title' | 'subtitle' | 'body' | 'caption' | 'label';
   muted?: boolean;
 }
 
 export function ThemedText({ variant = 'body', muted, style, ...props }: ThemedTextProps) {
   const { theme } = useAppTheme();
 
+  const variantStyle = typography[variant === 'display' ? 'display' : variant] as TextStyle;
+
   return (
     <Text
       style={[
-        styles.base,
-        variant === 'title' && styles.title,
-        variant === 'subtitle' && styles.subtitle,
-        variant === 'caption' && styles.caption,
-        variant === 'label' && styles.label,
+        variantStyle,
         { color: muted ? theme.colors.textMuted : theme.colors.text },
         style,
       ]}
@@ -26,10 +25,6 @@ export function ThemedText({ variant = 'body', muted, style, ...props }: ThemedT
   );
 }
 
-const styles = StyleSheet.create({
-  base: { fontSize: 16 },
-  title: { fontSize: 28, fontWeight: '700' },
-  subtitle: { fontSize: 20, fontWeight: '600' },
-  caption: { fontSize: 13 },
-  label: { fontSize: 14, fontWeight: '500' },
+export const errorText = StyleSheet.create({
+  text: { color: '#FF3B30' },
 });

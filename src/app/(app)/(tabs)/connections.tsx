@@ -40,7 +40,7 @@ export default function ConnectionsScreen() {
   };
 
   return (
-    <ScreenLayout scroll={false} padded={false}>
+    <ScreenLayout scroll={false} padded={false} glow>
       <View style={styles.header}>
         <ThemedText variant="title">Conexões</ThemedText>
         <ThemedText variant="caption" muted>Bancos conectados via Open Finance</ThemedText>
@@ -52,7 +52,7 @@ export default function ConnectionsScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.padded}><Skeleton height={100} /></View>
+        <View style={styles.padded}><Skeleton height={120} /></View>
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : !data?.length ? (
@@ -72,17 +72,19 @@ export default function ConnectionsScreen() {
             <Pressable onPress={() => router.push(`/(app)/connections/${item.id}` as never)}>
               <Card style={styles.item}>
                 <View style={styles.row}>
-                  <ThemedText variant="label">{item.institution.name}</ThemedText>
+                  <View style={{ flex: 1 }}>
+                    <ThemedText variant="label">{item.institution.name}</ThemedText>
+                    {item.lastSyncAt ? (
+                      <ThemedText variant="caption" muted>
+                        Sincronizado {formatRelativeTime(item.lastSyncAt)}
+                      </ThemedText>
+                    ) : null}
+                  </View>
                   <Badge
                     label={CONNECTION_STATUS_LABELS[item.status]}
                     color={CONNECTION_STATUS_COLORS[item.status]}
                   />
                 </View>
-                {item.lastSyncAt ? (
-                  <ThemedText variant="caption" muted>
-                    Sincronizado {formatRelativeTime(item.lastSyncAt)}
-                  </ThemedText>
-                ) : null}
                 {item.errorMessage ? (
                   <ThemedText variant="caption" style={styles.error}>{item.errorMessage}</ThemedText>
                 ) : null}
@@ -93,18 +95,21 @@ export default function ConnectionsScreen() {
                       variant="secondary"
                       onPress={() => handleSync(item.id)}
                       disabled={syncMutation.isPending}
+                      fullWidth={false}
                     />
                   )}
                   {item.status === 'EXPIRED' && (
                     <Button
                       label="Renovar"
                       onPress={() => router.push('/(app)/connections/connect')}
+                      fullWidth={false}
                     />
                   )}
                   <Button
                     label="Remover"
                     variant="ghost"
                     onPress={() => handleDelete(item.id, item.institution.name)}
+                    fullWidth={false}
                   />
                 </View>
               </Card>
@@ -121,7 +126,7 @@ const styles = StyleSheet.create({
   padded: { padding: spacing.md },
   list: { padding: spacing.md, paddingBottom: 120 },
   item: { marginBottom: spacing.md },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.sm },
   error: { color: '#FF3B30', marginTop: spacing.xs },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md, flexWrap: 'wrap' },
 });

@@ -1,23 +1,25 @@
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { useAppTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
+import { radius, shadows, spacing } from '@/theme/tokens';
 
 interface CardProps extends ViewProps {
   elevated?: boolean;
+  compact?: boolean;
 }
 
-export function Card({ elevated, style, children, ...props }: CardProps) {
+export function Card({ elevated, compact, style, children, ...props }: CardProps) {
   const { theme } = useAppTheme();
 
   return (
     <View
       style={[
         styles.card,
+        shadows.soft,
         {
           backgroundColor: elevated ? theme.colors.surfaceElevated : theme.colors.surface,
-          borderColor: theme.colors.border,
         },
+        compact && styles.compact,
         style,
       ]}
       {...props}>
@@ -30,6 +32,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     padding: spacing.lg,
-    borderWidth: StyleSheet.hairlineWidth,
+  },
+  compact: {
+    padding: spacing.md,
   },
 });
