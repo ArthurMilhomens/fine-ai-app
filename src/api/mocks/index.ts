@@ -77,6 +77,21 @@ const handlers: Record<string, MockHandler> = {
     if (!conn) throw { error: 'NOT_FOUND', message: 'Conexão não encontrada' };
     return { ...conn, status: 'SYNCING' };
   },
+  'POST /connections/:id/activate': async (req) => {
+    const id = req?.path?.split('/')[2];
+    const conn = mockConnections.find((c) => c.id === id);
+    if (!conn) {
+      return {
+        id: id ?? 'conn-activated',
+        institutionId: 'inst-pluggy',
+        institution: { id: 'inst-pluggy', name: 'Pluggy Bank' },
+        status: 'CONNECTED',
+        createdAt: new Date().toISOString(),
+        lastSyncAt: new Date().toISOString(),
+      };
+    }
+    return { ...conn, status: 'CONNECTED', lastSyncAt: new Date().toISOString() };
+  },
   'GET /accounts': async () => mockAccounts,
   'GET /accounts/:id': async (req) => {
     const id = req?.path?.split('/').pop();

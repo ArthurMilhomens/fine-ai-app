@@ -7,6 +7,21 @@ export function formatCurrency(value: number, currency = 'BRL'): string {
   }).format(value);
 }
 
+/** Split BRL amount into integer + cents parts for hero typography (e.g. "13.984" + "73"). */
+export function splitCurrency(value: number): { integer: string; cents: string } {
+  const abs = Math.abs(value);
+  const [rawInteger, cents = '00'] = abs.toFixed(2).split('.');
+  const integer = rawInteger.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return { integer, cents };
+}
+
+export function greetingForNow(date = new Date()): string {
+  const hour = date.getHours();
+  if (hour < 12) return 'Bom dia';
+  if (hour < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 export function formatDate(date: string | Date): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('pt-BR', {

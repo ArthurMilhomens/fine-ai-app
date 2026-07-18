@@ -17,5 +17,11 @@ export const connectionsApi = {
     await apiRequest<{ message: string }>('POST', `/connections/${id}/sync`);
     return connectionsApi.get(id);
   },
+  activate: async (id: string, providerConnectionId: string) =>
+    mapConnection(
+      await apiRequest<RawConnection>('POST', `/connections/${id}/activate`, {
+        providerConnectionId,
+      }),
+    ),
   institutions: async () => unwrapData(await apiRequest<{ data: Institution[] }>('GET', '/institutions')),
 };

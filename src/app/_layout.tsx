@@ -1,3 +1,5 @@
+import '../../global.css';
+
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -6,21 +8,28 @@ import { StyleSheet } from 'react-native';
 
 import { queryClient } from '@/api/queryClient';
 import { useTokenRefresh } from '@/auth/useTokenRefresh';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { ThemeProvider, useAppTheme } from '@/theme/ThemeProvider';
 
 function RootNavigator() {
-  const { theme } = useAppTheme();
+  const { theme, preference } = useAppTheme();
   useTokenRefresh();
 
+  const mode = preference === 'system' ? 'system' : preference;
+
   return (
-    <>
+    <GluestackUIProvider mode={mode}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: theme.colors.background },
+        }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(app)" />
       </Stack>
-    </>
+    </GluestackUIProvider>
   );
 }
 

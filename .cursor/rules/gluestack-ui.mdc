@@ -1,0 +1,29 @@
+---
+description: gluestack-ui is the default UI kit for Fine AI
+globs: src/**/*.{tsx,ts}
+alwaysApply: true
+---
+
+# UI Kit: gluestack-ui
+
+This project uses **[gluestack-ui](https://gluestack.io/ui/docs)** as the default UI kit. All new UI must be built on it.
+
+## Rules
+
+- Prefer gluestack primitives (`Box`, `VStack`, `HStack`, `Text`, `Heading`, `Button`, `Card`, `Badge`, `Input`, `Pressable`, `Skeleton`, `GlassView`, etc.) over raw React Native `View`/`Text`/`Pressable` for layout and chrome.
+- Import kit primitives from `@/components/ui/<component>` (CLI-generated lowercase folders).
+- Import Fine AI composed wrappers from `@/components/patterns/*` (Button, Card, Badge, ThemedText, EmptyState, etc.).
+- Keep the Fine AI theme (`src/theme/tokens.ts` + `global.css`). Do not invent a new palette.
+- Style with UniWind `className` aligned to theme tokens (`bg-background`, `text-foreground`, `bg-primary`, etc.).
+- If a component does not exist in gluestack, compose it from kit primitives first; only then add custom RN/layout code.
+- App-specific shells (`AppShell`, `FloatingNavbar`, `StatusBadge`) live in `src/components/` and **must** use gluestack as the base.
+- Floating glass / blur chrome uses gluestack **Liquid Glass** (`GlassView` / `GlassContainer` from `@/components/ui/liquid-glass`), with blur fallback when liquid glass is unavailable.
+- Do not introduce another UI library (NativeBase, Tamagui, Paper, etc.) without an explicit decision.
+
+## Adding kit pieces
+
+```bash
+npx gluestack-ui@latest add <component-name>
+```
+
+Docs: https://gluestack.io/ui/docs

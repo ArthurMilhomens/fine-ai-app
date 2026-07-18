@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { LoadingScreen } from '@/components/ui/Skeleton';
+import { LoadingScreen } from '@/components/patterns/Skeleton';
 import { useAuth } from '@/auth/useAuth';
 
 export default function SplashScreen() {
